@@ -1,9 +1,9 @@
 #include <USBComposite.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
+#include <Adafruit_GFX.h> // v1.7.5 needed
 #include <Adafruit_SSD1306.h>
-#include <Button.h> // https://github.com/JChristensen/Button
+#include <JC_Button.h> // https://github.com/JChristensen/JC_Button
 #include "bmp.h"
 
 USBHID HID;
@@ -48,15 +48,15 @@ Adafruit_SSD1306 OLED07(128, 48, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_
 Adafruit_SSD1306 OLED08(128, 48, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS08);
 Adafruit_SSD1306 OLED09(128, 48, OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS09);
 
-Button button01(SW01, true, true, 5); //pin, pullup, invert, debounce
-Button button02(SW02, true, true, 5); //pin, pullup, invert, debounce
-Button button03(SW03, true, true, 5); //pin, pullup, invert, debounce
-Button button04(SW04, true, true, 5); //pin, pullup, invert, debounce
-Button button05(SW05, true, true, 5); //pin, pullup, invert, debounce
-Button button06(SW06, true, true, 5); //pin, pullup, invert, debounce
-Button button07(SW07, true, true, 5); //pin, pullup, invert, debounce
-Button button08(SW08, true, true, 5); //pin, pullup, invert, debounce
-Button button09(SW09, true, true, 5); //pin, pullup, invert, debounce
+Button button01(SW01, 5, true, true); //pin, debounce, pullup, invert
+Button button02(SW02, 5, true, true); //pin, debounce, pullup, invert
+Button button03(SW03, 5, true, true); //pin, debounce, pullup, invert
+Button button04(SW04, 5, true, true); //pin, debounce, pullup, invert
+Button button05(SW05, 5, true, true); //pin, debounce, pullup, invert
+Button button06(SW06, 5, true, true); //pin, debounce, pullup, invert
+Button button07(SW07, 5, true, true); //pin, debounce, pullup, invert
+Button button08(SW08, 5, true, true); //pin, debounce, pullup, invert
+Button button09(SW09, 5, true, true); //pin, debounce, pullup, invert
 
 unsigned int cursor = 0;
 
@@ -73,6 +73,16 @@ void setup() {
   pinMode(SW07, INPUT_PULLUP);
   pinMode(SW08, INPUT_PULLUP);
   pinMode(SW09, INPUT_PULLUP);
+  
+  button01.begin();
+  button02.begin();
+  button03.begin();
+  button04.begin();
+  button05.begin();
+  button06.begin();
+  button07.begin();
+  button08.begin();
+  button09.begin();
   
   USBComposite.setProductId(PRODUCT_ID);
   HID.registerComponent();
