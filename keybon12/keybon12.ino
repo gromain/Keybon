@@ -147,63 +147,17 @@ void loop() {
       if (defaultLayoutActive) {
         functionsArray[keyArray[i].Function].Call();
       }
-      else CompositeSerial.print(char(i+0x30));
+      else CompositeSerial.print(char(i+0x30)); // 0x30 is the ASCII table offset for character '0'
     }
   };
 
   while (CompositeSerial.available() > 0) {
     byte command = CompositeSerial.read();
-    if (command >= '0' && command <= ';') {
+    if (command >= '0' && command <= ';') { // 0 for key01 to ; for key12
       defaultLayoutActive = false;
       CompositeSerial.readBytes(bmp_swap, 384);
-      if (command == '0') {
-        OLED01.clearDisplay();
-        OLED01.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '1') {
-        OLED02.clearDisplay();
-        OLED02.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '2') {
-        OLED03.clearDisplay();
-        OLED03.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '3') {
-        OLED04.clearDisplay();
-        OLED04.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '4') {
-        OLED05.clearDisplay();
-        OLED05.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '5') {
-        OLED06.clearDisplay();
-        OLED06.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '6') {
-        OLED07.clearDisplay();
-        OLED07.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '7') {
-        OLED08.clearDisplay();
-        OLED08.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '8') {
-        OLED09.clearDisplay();
-        OLED09.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == '9') {
-        OLED10.clearDisplay();
-        OLED10.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == ':') {
-        OLED11.clearDisplay();
-        OLED11.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
-      if (command == ';') {
-        OLED12.clearDisplay();
-        OLED12.drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-      }
+			keyArray[command-0x30].OLED->clearDisplay();
+			keyArray[command-0x30].OLED->drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
     }
     else if (command == 'D') { //fallback to internal Layout
       defaultLayoutActive = true;
