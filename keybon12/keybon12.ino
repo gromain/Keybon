@@ -153,34 +153,37 @@ void loop() {
 
   while (CompositeSerial.available() > 0) {
     byte command = CompositeSerial.read();
-    if (command >= '0' && command <= ';') { // 0 for key01 to ; for key12
-      defaultLayoutActive = false;
-      CompositeSerial.readBytes(bmp_swap, 384);
-			keyArray[command-0x30].OLED->clearDisplay();
-			keyArray[command-0x30].OLED->drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
-    }
-    else if (command == 'D') { //fallback to internal Layout
-      defaultLayoutActive = true;
-      for (uint8_t i = 0; i < 12; i++) {
-        keyArray[i].OLED->clearDisplay();   // clears the screen and buffer
-        keyArray[i].OLED->drawBitmap(32, 0, functionsArray[keyArray[i].Function].Icon, 64, 48, WHITE);
-      };
-    }
-    else if (command == 'A') { //Answer to call
-      CompositeSerial.print("a");
-    }
-    else if (command == 'B') { //high brightness
-      displayContrast(HIGH);
-    }
-    else if (command == 'b') { //low brightness
-      displayContrast(LOW);
-    }
+		switch (command) {
+			case '0':		// Key1
+			case '1':		// Key2, etc...
+			case '2':		// they all fall through to the same handling code
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+			case ':':
+			case ';':
+				defaultLayoutActive = false;
+				CompositeSerial.readBytes(bmp_swap, 384);
+				keyArray[command-0x30].OLED->clearDisplay();
+				keyArray[command-0x30].OLED->drawBitmap(32, 0, bmp_swap, 64, 48, WHITE);
+				break;
+			case 'A': //Answer to call
+	      CompositeSerial.print("a");
+				break;
+			case 'B': //high brightness
+	      displayContrast(HIGH);
+				break;
+			case 'b': //low brightness
+	      displayContrast(LOW);
+				break;
+			default:
+				CompositeSerial.print("Command not recognized");
+		}
   }
-
-  //OLED09.setCursor(32, 10);
-  //OLED09.setTextColor(WHITE);
-  //OLED09.setTextSize(1);
-  //OLED09.print(cursor);
 
   for (uint8_t i = 0; i < 12; i++) {
     keyArray[i].OLED->display();
