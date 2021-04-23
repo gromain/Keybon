@@ -19,11 +19,13 @@ void fVolumeDown(void);
 void fMute(void);
 void fMuteMic(void);
 void fLock(void);
-void fCopy(void);
+void fCut(void);
 void fPaste(void);
 void fForward(void);
 void fBackward(void);
 void fPlay(void);
+void fTerm(void);
+void fCalc(void);
 
 boolean defaultLayoutActive = true;
 
@@ -47,14 +49,14 @@ typedef enum eFunction{
 	PLAY,
 	FORWARD,
 	BACKWARD,
-	COPY,
+	CUT,
 	PASTE,
 	VOL_UP,
 	VOL_DOWN,
 	MIC_MUTE,
 	LOCK,
-	SOMETHING,
-	SOMETHINGELSE
+	TERM,
+	CALC
 } eFunction;
 
 typedef struct tFunction {
@@ -68,12 +70,14 @@ tFunction functionsArray[] = {
   {PLAY,      fPlay,        bmp_play},
   {FORWARD,   fForward,     bmp_forward},
   {BACKWARD,  fBackward,    bmp_backward},
-  {COPY,      fCopy,        bmp_copy},
+  {CUT,       fCut,         bmp_cut},
   {PASTE,     fPaste,       bmp_paste},
   {VOL_UP,    fVolumeUp,    bmp_volume_up},
   {VOL_DOWN,  fVolumeDown,  bmp_volume_down},
   {MIC_MUTE,  fMuteMic,     bmp_microphone},
-  {LOCK,      fLock,        bmp_lock}
+  {LOCK,      fLock,        bmp_lock},
+  {TERM,      fTerm,        bmp_term},
+  {CALC,      fCalc,        bmp_calc2}
 };
 
 typedef struct tkey {
@@ -92,9 +96,9 @@ typedef struct tkey {
 
 */
 tkey keyArray[] = {
-  {key01, &button01, &OLED01, LOCK},      {key02, &button02, &OLED02, LOCK},     {key03, &button03, &OLED03, VOL_UP},
-	{key04, &button04, &OLED04, MIC_MUTE}, 	{key05, &button05, &OLED05, LOCK},     {key06, &button06, &OLED06, VOL_DOWN},
-	{key07, &button07, &OLED07, COPY},	    {key08, &button08, &OLED08, PASTE},	   {key09, &button09, &OLED09, MUTE},
+  {key01, &button01, &OLED01, LOCK},      {key02, &button02, &OLED02, CALC}, {key03, &button03, &OLED03, MIC_MUTE},
+	{key04, &button04, &OLED04, CUT}, 			{key05, &button05, &OLED05, PASTE},     {key06, &button06, &OLED06, TERM},
+	{key07, &button07, &OLED07, VOL_DOWN},	{key08, &button08, &OLED08, MUTE},	   {key09, &button09, &OLED09, VOL_UP},
 	{key10, &button10, &OLED10, BACKWARD},	{key11, &button11, &OLED11, PLAY},	   {key12, &button12, &OLED12, FORWARD}
 };
 
@@ -205,13 +209,16 @@ void displayContrast(boolean contrast) {
   };
 }
 
+
+// See https://github.com/arpruss/USBComposite_stm32f1/blob/master/USBHID.h for actual key presses and value list
+// For consumer style value, see https://www.usb.org/sites/default/files/hut1_22.pdf, starting p117
 void fVolumeUp(void){
   Consumer.press(HIDConsumer::VOLUME_UP);
   Consumer.release();
 }
 
 void fVolumeDown(void){
-  Consumer.press(HIDConsumer::VOLUME_DOWN);
+	Consumer.press(HIDConsumer::VOLUME_DOWN);
   Consumer.release();
 }
 
@@ -220,33 +227,48 @@ void fMute(void){
   Consumer.release();
 }
 
-void fMuteMic(void){
-//  Consumer.press(0xD5);
-  Consumer.press(0x6F);
+void fLock(void){
+	// From https://www.usb.org/sites/default/files/hut1_22.pdf, starting p122
+	// AL Terminal Lock/Screensaver
+	Consumer.press(0x19E);
   Consumer.release();
 }
 
-void fLock(void){
-  Keyboard.press(KEY_LEFT_CTRL);
-  Keyboard.press(KEY_LEFT_ALT);
-  Keyboard.press('l');
-  Keyboard.release('l');
-  Keyboard.release(KEY_LEFT_ALT);
-  Keyboard.release(KEY_LEFT_CTRL);
+void fCalc(void){
+	Keyboard.press(KEY_LEFT_GUI);
+	Keyboard.press('k');
+	Keyboard.release('k');
+	Keyboard.release(KEY_LEFT_GUI);
 }
 
-void fCopy(void){
-  Keyboard.press(KEY_LEFT_CTRL);
-  Keyboard.press('c');
-  Keyboard.release('c');
-  Keyboard.release(KEY_LEFT_CTRL);
+void fMuteMic(void){
+//	Keyboard.press((uint16_t)(0x6F + 0x88)); // Keyboard F20
+	Keyboard.press((uint16_t)(0xB0 + 0x88)); // Keyboard F20
+	Keyboard.releaseAll();
+}
+
+void fCut(void){
+	Keyboard.press(KEY_LEFT_CTRL);
+	Keyboard.press('x');
+	Keyboard.releaseAll();
+	// Keyboard.release(KEY_LEFT_CTRL);
+
+	// From https://www.usb.org/sites/default/files/hut1_22.pdf, starting p123
+	// AC Cut
+	// Consumer.press(0x21C);
+	// Consumer.release();
 }
 
 void fPaste(void){
   Keyboard.press(KEY_LEFT_CTRL);
   Keyboard.press('v');
-  Keyboard.release('v');
-  Keyboard.release(KEY_LEFT_CTRL);
+	Keyboard.releaseAll();
+  // Keyboard.release(KEY_LEFT_CTRL);
+
+	// From https://www.usb.org/sites/default/files/hut1_22.pdf, starting p123
+	// AC Paste
+	// Consumer.press(0x21D);
+	// Consumer.release();
 }
 
 void fForward(void){
@@ -262,4 +284,9 @@ void fBackward(void){
 void fPlay(void){
   Consumer.press(HIDConsumer::PLAY_OR_PAUSE);
   Consumer.release();
+}
+
+void fTerm(void){
+  Keyboard.press(KEY_F12);
+  Keyboard.release(KEY_F12);
 }
